@@ -22,7 +22,21 @@ const addToCartSlice = createSlice({
         state.cardItem.push(action.payload);
       }
     },
-    removeToCard(state, action) {},
+    removeToCard(state, action) {
+      const id = action.payload;
+      const existProduct = state.cardItem.find((item) => item.id === id);
+
+      if (existProduct.quantity > 1) {
+        const filterCart = state.cardItem.filter((item) => item.id !== id);
+        state.cardItem = [
+          ...filterCart,
+          { ...existProduct, quantity: existProduct.quantity - 1 },
+        ];
+      } else {
+        const filterCart = state.cardItem.filter((item) => item.id !== id);
+        state.cardItem = [...filterCart];
+      }
+    },
   },
 });
 
