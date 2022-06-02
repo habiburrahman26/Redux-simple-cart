@@ -2,6 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
   cardItem: [],
+  totalQuantity: 0,
 };
 
 const addToCartSlice = createSlice({
@@ -9,32 +10,36 @@ const addToCartSlice = createSlice({
   initialState,
   reducers: {
     addToCart(state, action) {
-      const id = action.payload.id;
-      const existProduct = state.cardItem.find((item) => item.id === id);
+      const newItem = action.payload;
+      const existingItem = state.cardItem.find(
+        (item) => item.itemId === newItem.id
+      );
+      console.log(existingItem);
+      state.totalQuantity++;
 
-      if (existProduct) {
-        const filterCart = state.cardItem.filter((item) => item.id !== id);
-        state.cardItem = [
-          ...filterCart,
-          { ...existProduct, quantity: existProduct.quantity + 1 },
-        ];
+      if (!existingItem) {
+        state.cardItem.push({
+          itemId: newItem.id,
+          price: newItem.price,
+          quantity: 1,
+          totalPrice: newItem.price,
+          name: newItem.title,
+        });
       } else {
-        state.cardItem.push(action.payload);
+        existingItem.quantity++;
+        existingItem.totalPrice = existingItem.totalPrice + newItem.price;
       }
     },
     removeToCard(state, action) {
       const id = action.payload;
-      const existProduct = state.cardItem.find((item) => item.id === id);
+      const existingItem = state.cardItem.find((item) => item.itemId === id);
+      state.totalQuantity--;
 
-      if (existProduct.quantity > 1) {
-        const filterCart = state.cardItem.filter((item) => item.id !== id);
-        state.cardItem = [
-          ...filterCart,
-          { ...existProduct, quantity: existProduct.quantity - 1 },
-        ];
+      if (existingItem.quantity === 1) {
+        state.cardItem = state.cardItem.filter((item) => item.itemId !== id);
       } else {
-        const filterCart = state.cardItem.filter((item) => item.id !== id);
-        state.cardItem = [...filterCart];
+        existingItem.quantity--;
+        existingItem.totalPrice = existingItem.totalPrice - existingItem.price;
       }
     },
   },
